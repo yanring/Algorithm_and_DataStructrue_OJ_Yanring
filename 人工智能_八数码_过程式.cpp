@@ -2,6 +2,10 @@
 #include<iostream>
 #include<cstring>
 using namespace std;
+/*
+	bfs求解八数码
+	author:颜子杰 
+*/ 
 int matrix[9];
 int zero_pos;//空格的位置
 int i,j;//所用到的变量

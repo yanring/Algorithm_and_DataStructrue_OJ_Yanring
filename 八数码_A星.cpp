@@ -3,12 +3,12 @@
 #include<cstring>
 #include <queue>
 #include <sstream>
-using namespace std;
-bool flag[999999999]; 
-/*
-	bfs求解八数码
-	author:颜子杰 
+/* 	A*算法求解八数码
+	author：颜子杰 
 */ 
+using namespace std;
+bool flag[999999999]; //可以用康拓展开来节省flag的内存消耗 
+int target = 123804765;//目标状态 
 int find_zero(int mat[])
 {
 	for(int i=0;i<9;i++)
@@ -21,6 +21,14 @@ class matrix{
 	public :
 	int mat[9];
 	string path; 
+	int G;
+	int H; 
+	matrix(){
+		G=H=0;
+	} 
+	bool operator<(const matrix &b) const { // 重载<，优先队列需要 
+        return (G+H) < (b.G+b.H);
+    }
 	bool move_right(){
 		int zero_index = find_zero(mat);
 		if(zero_index%3!=2){
@@ -65,6 +73,17 @@ class matrix{
 			printf("\n");
 		}
 	}
+	void cal_H(){
+		int value = cal_val();
+		H = 0; 
+		int tmp_target = target;
+		for(int i = 1 ; i <= 9 ; i++){
+			if(value%10==tmp_target%10)
+				H++;
+			tmp_target/=10;
+			value/=10;
+		}
+	}
 	int cal_val(){
 		int value = 0;
 		for(int i = 0; i <= 8 ;i++){
@@ -73,57 +92,73 @@ class matrix{
 		return value;
 	}
 };
-queue<matrix> q;
+priority_queue<matrix> q;
 int main()
 {
+	matrix res;
 	matrix tmp_mat;
 	while(1){
 		printf("Input your data：\n");
 		for(int i=0;i<9;i++)
 			scanf("%d",&tmp_mat.mat[i]);
 		q.push(tmp_mat);
+ 
 		while(!q.empty()){
-			matrix tmp2 = q.front();
+			matrix tmp2 = q.top();
+			matrix tmp3 = q.top();
+			q.pop();
 			stringstream ss;
 			ss << tmp2.cal_val();
 			string pre_val = ss.str();
-			if(pre_val.length()==8){//保存路径,这样比较省空间 
+			if(pre_val.length()==8){
 				pre_val = "0"+ pre_val;
-			if(tmp2.cal_val() == 123804765){
+			}
+			if(tmp2.cal_val() == target){
+				res = tmp3;
 				printf("success!\n");
 				break;
 			}
 			if(tmp2.move_left()){
 				tmp2.path = tmp2.path + pre_val;
-				if(flag[tmp2.cal_val()]==0)				
-					q.push(tmp2);
+				if(flag[tmp2.cal_val()]==0)	{
+					tmp2.G++;
+					tmp2.cal_H();
+					q.push(tmp2);					
+				}					
 				flag[tmp2.cal_val()]=1;
 			}
-			tmp2 = q.front();
+			tmp2 = tmp3;
 			if(tmp2.move_right()){
 				tmp2.path = tmp2.path + pre_val;
-				if(flag[tmp2.cal_val()]==0)	
-					q.push(tmp2);
+				if(flag[tmp2.cal_val()]==0){
+					tmp2.G++;
+					tmp2.cal_H();
+					q.push(tmp2);					
+				}
 				flag[tmp2.cal_val()]=1;
 			}
-			tmp2 = q.front();
+			tmp2 = tmp3;
 			if(tmp2.move_down()){
 				tmp2.path = tmp2.path + pre_val;
-				if(flag[tmp2.cal_val()]==0)	
-					q.push(tmp2);
+				if(flag[tmp2.cal_val()]==0){
+					tmp2.G++;
+					tmp2.cal_H();
+					q.push(tmp2);					
+				}
 				flag[tmp2.cal_val()]=1;
 			}
-			tmp2 = q.front();
+			tmp2 = tmp3;
 			if(tmp2.move_up()){
 				tmp2.path = tmp2.path + pre_val;
-				if(flag[tmp2.cal_val()]==0)	
-					q.push(tmp2);
+				if(flag[tmp2.cal_val()]==0){
+					tmp2.G++;
+					tmp2.cal_H();
+					q.push(tmp2);					
+				}
 				flag[tmp2.cal_val()]=1;
-			}
-			q.pop();
-		}	
-		matrix tmp2 = q.front();
-		string path = tmp2.path;
+			}	 
+		}			
+		string path = res.path;
 		int steps = 1;
 		for(int i = 0 ; i < path.length();i++){
 			cout<< path[i]<<" ";
@@ -134,8 +169,8 @@ int main()
 				steps++;
 			}
 		}
-		tmp2.print();
-		printf("最短通过%d步\n",steps);
+		res.print();
+		printf("A*算法最短通过%d 步到达\n",steps);
 	}
 	return 0;
 }
