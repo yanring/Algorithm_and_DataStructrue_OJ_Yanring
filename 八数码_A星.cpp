@@ -21,6 +21,7 @@ class matrix{
 	public :
 	int mat[9];
 	string path; 
+	int depth=0; 
 	bool move_right(){
 		int zero_index = find_zero(mat);
 		if(zero_index%3!=2){
@@ -97,6 +98,7 @@ int main()
 			}
 			if(tmp2.move_left()){
 				tmp2.path = tmp2.path + pre_val;
+				tmp2.depth ++;
 				if(flag[tmp2.cal_val()]==0)				
 					q.push(tmp2);
 				flag[tmp2.cal_val()]=1;
@@ -104,6 +106,7 @@ int main()
 			tmp2 = q.front();
 			if(tmp2.move_right()){
 				tmp2.path = tmp2.path + pre_val;
+				tmp2.depth ++;
 				if(flag[tmp2.cal_val()]==0)	
 					q.push(tmp2);
 				flag[tmp2.cal_val()]=1;
@@ -111,6 +114,7 @@ int main()
 			tmp2 = q.front();
 			if(tmp2.move_down()){
 				tmp2.path = tmp2.path + pre_val;
+				tmp2.depth ++;
 				if(flag[tmp2.cal_val()]==0)	
 					q.push(tmp2);
 				flag[tmp2.cal_val()]=1;
@@ -118,6 +122,7 @@ int main()
 			tmp2 = q.front();
 			if(tmp2.move_up()){
 				tmp2.path = tmp2.path + pre_val;
+				tmp2.depth ++;
 				if(flag[tmp2.cal_val()]==0)	
 					q.push(tmp2);
 				flag[tmp2.cal_val()]=1;
@@ -140,7 +145,7 @@ int main()
 				}
 			}
 			tmp2.print();
-			printf("最短通过%d步\n",steps);
+			printf("最短通过%d步\n",tmp2.depth);
 		}	
 	}
 	return 0;
