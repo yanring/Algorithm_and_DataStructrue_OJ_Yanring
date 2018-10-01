@@ -6,8 +6,8 @@
 using namespace std;
 bool flag[999999999]; 
 /*
-	bfsÇó½â°ËÊıÂë
-	author:ÑÕ×Ó½Ü 
+	bfsæ±‚è§£å…«æ•°ç 
+	author:é¢œå­æ° 
 */ 
 int find_zero(int mat[])
 {
@@ -21,6 +21,7 @@ class matrix{
 	public :
 	int mat[9];
 	string path; 
+	int depth=0; 
 	bool move_right(){
 		int zero_index = find_zero(mat);
 		if(zero_index%3!=2){
@@ -78,7 +79,9 @@ int main()
 {
 	matrix tmp_mat;
 	while(1){
-		printf("Input your data£º\n");
+		printf("Input your dataï¼š\n");
+	 	while (!q.empty()) q.pop();
+	 	memset(flag,0,sizeof(flag));
 		for(int i=0;i<9;i++)
 			scanf("%d",&tmp_mat.mat[i]);
 		q.push(tmp_mat);
@@ -87,14 +90,15 @@ int main()
 			stringstream ss;
 			ss << tmp2.cal_val();
 			string pre_val = ss.str();
-			if(pre_val.length()==8){//±£´æÂ·¾¶,ÕâÑù±È½ÏÊ¡¿Õ¼ä 
+			if(pre_val.length()==8)//ä¿å­˜è·¯å¾„,è¿™æ ·æ¯”è¾ƒçœç©ºé—´ 
 				pre_val = "0"+ pre_val;
-			if(tmp2.cal_val() == 123804765){
+			if(tmp2.cal_val() == 123456780){
 				printf("success!\n");
 				break;
 			}
 			if(tmp2.move_left()){
 				tmp2.path = tmp2.path + pre_val;
+				tmp2.depth ++;
 				if(flag[tmp2.cal_val()]==0)				
 					q.push(tmp2);
 				flag[tmp2.cal_val()]=1;
@@ -102,6 +106,7 @@ int main()
 			tmp2 = q.front();
 			if(tmp2.move_right()){
 				tmp2.path = tmp2.path + pre_val;
+				tmp2.depth ++;
 				if(flag[tmp2.cal_val()]==0)	
 					q.push(tmp2);
 				flag[tmp2.cal_val()]=1;
@@ -109,6 +114,7 @@ int main()
 			tmp2 = q.front();
 			if(tmp2.move_down()){
 				tmp2.path = tmp2.path + pre_val;
+				tmp2.depth ++;
 				if(flag[tmp2.cal_val()]==0)	
 					q.push(tmp2);
 				flag[tmp2.cal_val()]=1;
@@ -116,27 +122,31 @@ int main()
 			tmp2 = q.front();
 			if(tmp2.move_up()){
 				tmp2.path = tmp2.path + pre_val;
+				tmp2.depth ++;
 				if(flag[tmp2.cal_val()]==0)	
 					q.push(tmp2);
 				flag[tmp2.cal_val()]=1;
 			}
 			q.pop();
-		}	
-		matrix tmp2 = q.front();
-		string path = tmp2.path;
-		int steps = 1;
-		for(int i = 0 ; i < path.length();i++){
-			cout<< path[i]<<" ";
-			if(i%3==2)
-				cout<<endl;
-			if(i%9==8){
-				cout<<endl;
-				steps++;
-			}
 		}
-		tmp2.print();
-		printf("×î¶ÌÍ¨¹ı%d²½\n",steps);
+		if(q.empty())
+			printf("æ— è§£\n");
+		else{
+			matrix tmp2 = q.front();
+			string path = tmp2.path;
+			int steps = 1;
+			for(int i = 0 ; i < path.length();i++){
+				cout<< path[i]<<" ";
+				if(i%3==2)
+					cout<<endl;
+				if(i%9==8){
+					cout<<endl;
+					steps++;
+				}
+			}
+			tmp2.print();
+			printf("æœ€çŸ­é€šè¿‡%dæ­¥\n",tmp2.depth);
+		}	
 	}
 	return 0;
 }
-
