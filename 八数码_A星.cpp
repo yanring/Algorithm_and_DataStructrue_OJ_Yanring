@@ -3,12 +3,15 @@
 #include<cstring>
 #include <queue>
 #include <sstream>
-using namespace std;
-bool flag[999999999]; 
-/*
-	bfs求解八数码
-	author:颜子杰 
+#include<time.h>
+#include<math.h>
+/* 	A*算法求解八数码
+	author：颜子杰 
 */ 
+using namespace std;
+bool flag[999999999]; //可以用康拓展开来节省flag的内存消耗 
+int target = 123456780;//目标状态 
+string target_str = " 123456780";
 int find_zero(int mat[])
 {
 	for(int i=0;i<9;i++)
@@ -21,7 +24,15 @@ class matrix{
 	public :
 	int mat[9];
 	string path; 
-	int depth=0; 
+	int G;
+	int H; 
+	matrix(){
+		G=H=0;
+	} 
+	bool operator<(const matrix &b) const { // 重载<，优先队列需要 
+//		return (H) > (b.H);
+        return (G+H) > (b.G+b.H);
+    }
 	bool move_right(){
 		int zero_index = find_zero(mat);
 		if(zero_index%3!=2){
@@ -66,6 +77,26 @@ class matrix{
 			printf("\n");
 		}
 	}
+//	void cal_H(){
+//		int value = cal_val();
+//		H = 0; 
+//		int tmp_target = target;
+//		for(int i = 1 ; i <= 9 ; i++){
+//			if(value%10!=tmp_target%10)
+//				H++;
+//			tmp_target/=10;
+//			value/=10;
+//		}
+//	}
+	void cal_H(){
+		int value = cal_val();
+		H = 0; 
+		int tmp_target = target;
+		for(int i = 1 ; i <= 9 ; i++){
+			int index = target_str.find('0'+mat[i]);
+			H = abs(i/3-index/3)+abs(i%3-index%3);
+		}
+	}
 	int cal_val(){
 		int value = 0;
 		for(int i = 0; i <= 8 ;i++){
@@ -74,67 +105,87 @@ class matrix{
 		return value;
 	}
 };
-queue<matrix> q;
+priority_queue<matrix> q;
 int main()
 {
+	matrix res;
 	matrix tmp_mat;
+	clock_t startTime,endTime;
+	startTime = clock(); 
+	freopen("1.txt","r",stdin);
 	while(1){
+		while (!q.empty()) q.pop();
+		memset(flag,0,sizeof(flag));
 		printf("Input your data：\n");
-	 	while (!q.empty()) q.pop();
-	 	memset(flag,0,sizeof(flag));
 		for(int i=0;i<9;i++)
 			scanf("%d",&tmp_mat.mat[i]);
 		q.push(tmp_mat);
+ 		if(tmp_mat.mat[1]==9){
+			
+			endTime = clock();
+			cout << "Totle Time : " <<(double)(endTime - startTime) / CLOCKS_PER_SEC << "s" << endl;
+			return 0;
+		}
 		while(!q.empty()){
-			matrix tmp2 = q.front();
+			matrix tmp2 = q.top();
+			matrix tmp3 = q.top();
+			q.pop();
 			stringstream ss;
 			ss << tmp2.cal_val();
 			string pre_val = ss.str();
-			if(pre_val.length()==8)//保存路径,这样比较省空间 
+			if(pre_val.length()==8){
 				pre_val = "0"+ pre_val;
-			if(tmp2.cal_val() == 123456780){
+			}
+			if(tmp2.cal_val() == target){
+				res = tmp3;
 				printf("success!\n");
 				break;
 			}
 			if(tmp2.move_left()){
 				tmp2.path = tmp2.path + pre_val;
-				tmp2.depth ++;
-				if(flag[tmp2.cal_val()]==0)				
-					q.push(tmp2);
+				if(flag[tmp2.cal_val()]==0)	{
+					tmp2.G++;
+					tmp2.cal_H();
+					q.push(tmp2);					
+				}					
 				flag[tmp2.cal_val()]=1;
 			}
-			tmp2 = q.front();
+			tmp2 = tmp3;
 			if(tmp2.move_right()){
 				tmp2.path = tmp2.path + pre_val;
-				tmp2.depth ++;
-				if(flag[tmp2.cal_val()]==0)	
-					q.push(tmp2);
+				if(flag[tmp2.cal_val()]==0){
+					tmp2.G++;
+					tmp2.cal_H();
+					q.push(tmp2);					
+				}
 				flag[tmp2.cal_val()]=1;
 			}
-			tmp2 = q.front();
+			tmp2 = tmp3;
 			if(tmp2.move_down()){
 				tmp2.path = tmp2.path + pre_val;
-				tmp2.depth ++;
-				if(flag[tmp2.cal_val()]==0)	
-					q.push(tmp2);
+				if(flag[tmp2.cal_val()]==0){
+					tmp2.G++;
+					tmp2.cal_H();
+					q.push(tmp2);					
+				}
 				flag[tmp2.cal_val()]=1;
 			}
-			tmp2 = q.front();
+			tmp2 = tmp3;
 			if(tmp2.move_up()){
 				tmp2.path = tmp2.path + pre_val;
-				tmp2.depth ++;
-				if(flag[tmp2.cal_val()]==0)	
-					q.push(tmp2);
+				if(flag[tmp2.cal_val()]==0){
+					tmp2.G++;
+					tmp2.cal_H();
+					q.push(tmp2);					
+				}
 				flag[tmp2.cal_val()]=1;
-			}
-			q.pop();
+			}	 
 		}
 		if(q.empty())
-			printf("无解\n");
+			cout<<"无解"<<endl;
 		else{
-			matrix tmp2 = q.front();
-			string path = tmp2.path;
-			int steps = 1;
+			string path = res.path;
+			int steps = 0;
 			for(int i = 0 ; i < path.length();i++){
 				cout<< path[i]<<" ";
 				if(i%3==2)
@@ -144,9 +195,9 @@ int main()
 					steps++;
 				}
 			}
-			tmp2.print();
-			printf("最短通过%d步\n",tmp2.depth);
-		}	
+			res.print();
+			printf("A*算法最短通过%d 步到达\n",steps);
+		}			
 	}
 	return 0;
 }
