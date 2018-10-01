@@ -4,6 +4,7 @@
 #include <vector>
 #include <sstream>
 #include <iostream>
+#include<time.h>
 using namespace std;
 bool flag[999999999]; 
 /*
@@ -80,12 +81,21 @@ int main()
 {
 	int depth_limit = 12; 
 	matrix tmp_mat;
+	clock_t startTime,endTime;
+	startTime = clock();
+	freopen("1.txt","r",stdin);
 	while(1){
 		printf("Input your data：\n");
 	 	while (!q.empty()) q.pop_back();
 	 	memset(flag,0,sizeof(flag));
 		for(int i=0;i<9;i++)
 			scanf("%d",&tmp_mat.mat[i]);
+		if(tmp_mat.mat[1]==9){
+			
+			endTime = clock();
+			cout << "Totle Time : " <<(double)(endTime - startTime) / CLOCKS_PER_SEC << "s" << endl;
+			return 0;
+		}
 		q.push_back(tmp_mat);
 		while(!q.empty()){
 			matrix tmp2 = q.front();
